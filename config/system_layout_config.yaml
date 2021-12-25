@@ -1,0 +1,96 @@
+flowers:
+- address: 1
+  gateways:
+  - blowers:
+    - address: 236
+    groups:
+    - address: 1
+      blink_vector:
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 0
+      end_of_day: '18:00:00'
+      max_current:
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      mixing_table:
+        path: MixerTableExcels/MixerTable.xlsx
+      schedule: Summer 2022
+      sensor:
+        address: 230
+      start_of_day: 06:00:00
+      temp_mid: 80
+    hops: 10
+    lamps:
+    - address: 102
+      group_membership:
+      - 1
+      - 2
+      location:
+      - 1
+      - 0
+    net: 0
+    serial_number: '3621.0901'
+- address: 2
+  gateways:
+  - blowers:
+    - address: 236
+    groups:
+    - address: 1
+      blink_vector:
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 100
+      - 0
+      end_of_day: '18:00:00'
+      max_current:
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      - 200
+      mixing_table:
+        path: MixerTableExcels/MixerTable.xlsx
+      schedule: Winter 2021
+      sensor:
+        address: 230
+      start_of_day: 06:00:00
+      temp_mid: 80
+    hops: 10
+    lamps:
+    - address: 99
+      group_membership:
+      - 1
+      - 2
+      location:
+      - 1
+      - 0
+    - address: 101
+      group_membership:
+      - 1
+      - 2
+      location:
+      - 1
+      - 0
+    net: 0
+    serial_number: '0101.0001'

@@ -1,0 +1,18 @@
+add_a_lamp_query_to_queue:
+  seconds: 1
+  minutes: 0
+add_a_lamp_group_membership:
+  seconds: 0
+  minutes: 1
+add_a_lamp_non_important_query_to_queue:
+  seconds: 0
+  minutes: 3
+add_a_sensor_query_to_queue:
+  seconds: 0
+  minutes: 1
+set_a_blower_to_queue:
+  seconds: 0
+  minutes: 10
+set_group_settings:
+  seconds: 0
+  minutes: 10

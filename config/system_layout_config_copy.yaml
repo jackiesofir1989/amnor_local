@@ -1,0 +1,76 @@
+flowers:
+  - address: 1
+    gateways:
+      - serial_number: '3621.0901'
+        hops: 10
+        net: 0
+        groups:
+          - address: 1
+            start_of_day: '06:00:00'
+            end_of_day: '18:00:00'
+            temp_mid: 80
+            max_current: [ 1400,1400,1400,1400,1400,1400,1400,1400 ]
+            blink_vector: [ 100,100,100,100,100,100,100,100,1 ]
+            mixing_table:
+              path: 'MixerTableExcels/MixerTable.xlsx'
+            schedule:
+              name: 'Winter 2021'
+              events:
+                - name: 'Off'
+                  colors: [ 0, 0, 0, 0, 0, 100, 100, 100 ]
+                  brightness: 0
+                  moles_desired: 0
+                  start_time: '00:00:00'
+                - name: 'Early Morning'
+                  colors: [ 0, 0, 0, 0, 0, 100, 100, 100 ]
+                  brightness: 1
+                  moles_desired: 50
+                  start_time: '06:00:00'
+                - name: 'Late Morning'
+                  colors: [ 0, 0, 100, 100, 100, 100, 0, 0 ]
+                  brightness: 2
+                  moles_desired: 60
+                  start_time: '8:15:00'
+                - name: 'Later Morning'
+                  colors: [ 0, 0, 100, 100, 100, 100, 0, 0 ]
+                  brightness: 3
+                  moles_desired: 70
+                  start_time: '9:15:00'
+                - name: 'Very Late Morning'
+                  colors: [ 0, 0, 0, 0, 0, 100, 100, 100 ]
+                  brightness: 4
+                  moles_desired: 40
+                  start_time: '10:30:00'
+                - name: 'Early Noon'
+                  colors: [ 0, 0, 100, 100, 100, 100, 0, 0 ]
+                  brightness: 5
+                  moles_desired: 50
+                  start_time: '11:15:00'
+                - name: 'Noon'
+                  colors: [ 100, 100, 100, 100, 100, 100, 100, 100 ]
+                  brightness: 6
+                  moles_desired: 60
+                  start_time: '13:00:00'
+                - name: 'Late Noon'
+                  colors: [ 100, 100, 100, 100, 100, 100, 100, 100 ]
+                  brightness: 5
+                  moles_desired: 70
+                  start_time: '14:00:00'
+                - name: 'Very Late Noon'
+                  colors: [ 0, 0, 0, 0, 0, 10, 0, 0 ]
+                  brightness: 2
+                  moles_desired: 80
+                  start_time: '16:00:00'
+                - name: 'Night'
+                  colors: [ 0, 0, 100, 100, 100, 100, 0, 0 ]
+                  brightness: 0
+                  moles_desired: 0
+                  start_time: '18:00:00'
+            sensor:
+              address: 230
+        lamps:
+          - address: 101
+            location: [ 1, 0 ]
+            group_membership: [ 1, 2 ]
+        blowers:
+          - address: 235
