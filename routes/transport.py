@@ -111,7 +111,7 @@ class Transport:
         byte_array = modbus.amnor_modbus_r_w_registers(address=lamp_address, opcode=40164, params=[net_id], is_query=False)
         gw.add_to_queue(Command(priority=0, owner=str(gw), description=f'Set lamp {lamp_address} to net id {net_id}',
                                 data_bytes=byte_array))
-        
+
     @router.post("/transport/read_status_from_lamp/")
     async def read_status_from_lamp(self, serial_number: str, lamp_address: int):
         """Reads all parameters from a requested lamp"""
@@ -132,9 +132,9 @@ class Transport:
         byte_array = modbus.amnor_modbus_r_w_registers(address=lamp_address, opcode=40163, params=[max_temp], is_query=False)
         gw.add_to_queue(Command(priority=0, owner=str(gw), description=f'Set lamp {lamp_address} to max temp {max_temp}',
                                 data_bytes=byte_array))
-        
+
     @router.post("/transport/set_group_membership_to_lamp/")
-    async def set_group_membership_to_lamp(self, serial_number: str, lamp_address: int, 
+    async def set_group_membership_to_lamp(self, serial_number: str, lamp_address: int,
                                            group_membership: List[int] = Body(..., example=[1, 2, 3])):
         """Set the lamp group membership,
         The groups should be specified in a list,
@@ -144,7 +144,7 @@ class Transport:
         byte_array = modbus.amnor_modbus_r_w_registers(address=lamp_address, opcode=40165, params=[group_membership_int], is_query=False)
         gw.add_to_queue(Command(priority=0, owner=str(gw), description=f'Set lamp {lamp_address} to groups {group_membership}',
                                 data_bytes=byte_array))
-        
+
     @router.post("/transport/read_sensor/")
     async def read_sensor(self, serial_number: str, address: int):
         """Checks for communication from the sensor"""
@@ -161,8 +161,21 @@ class Transport:
         _ = [int(i) for i in ipv4.split('.')]
         int(port)
         gw = self.check_valid_gw(serial_number)
-        gw.add_to_queue(Command(priority=0, owner=str(gw), description=f'Set GW Call address to {call_address}', 
+        gw.add_to_queue(Command(priority=0, owner=str(gw), description=f'Set GW Call address to {call_address}',
                                 data_bytes=bytes(call_address.encode('utf-8'))))
+
+    @router.post("/transport/set_group_scheduler_enabled/")
+    async def set_gw_call_address(self, serial_number: str, group: int, scheduler_state: bool):
+        """Enable\\Disable a group automatic light control -  basically stop the light change,
+        Valid Group are 1-16"""
+        if not 1 <= group <= 16:
+            raise ValueError('Values must be [1-16]')
+        gw = self.check_valid_gw(serial_number)
+        for gr in gw.groups:
+            if gr.address == group:
+                gr.set_scheduler_enabled(scheduler_state)
+                return
+        raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Group {group} dose not exist')
 
     async def handle_device(self, gw, raw_data):
         device_found, device, device_type, address = gw.find_device(raw_data)
@@ -191,7 +204,7 @@ class Transport:
         if not gw:
             raise HTTPException(status_code=status.HTTP_400_BAD_REQUEST, detail=f'Gateway {serial_number} dose not exist')
         return gw
-    
+
     @staticmethod
     async def submit_a_log(owner: str, log_level: str, description):
         alert_event = AlertEventCreate(owner=owner, log_level=log_level, description=str(description))

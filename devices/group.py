@@ -1,3 +1,4 @@
+import logging
 from datetime import datetime, time
 from typing import List, Optional, Tuple, Any, Union
 
@@ -24,6 +25,7 @@ class Group(APIModel):
     sensor: Optional[Sensor]
     group_offset: int = 240
     calculated_ppfd: float = 0.0
+    scheduler_enabled: bool = True
 
     def __init__(self, **data: Any):
         super().__init__(**data)
@@ -70,6 +72,13 @@ class Group(APIModel):
 
     def __str__(self):
         return f"Group {self.address}"
+
+    def set_scheduler_enabled(self, state: bool):
+        self.scheduler_enabled = state
+        logging.warning(f'{self}, Scheduler running state is {state}')
+
+    def is_scheduler_enabled(self) -> bool:
+        return self.scheduler_enabled
 
     def is_start_of_day(self) -> bool:
         current_time = datetime.now().time()

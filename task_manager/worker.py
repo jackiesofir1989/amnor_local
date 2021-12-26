@@ -88,6 +88,8 @@ def add_a_sensor_query_to_queue():
             if sensor:
                 gw.add_to_queue(Command(priority=1, owner=str(sensor), description='Get PPFD', data_bytes=sensor.request_light_level()))
             else:
+                if not group.is_scheduler_enabled():
+                    return
                 event, output_light_vector, surface_micro_moles = group.get_current_output_vector()
                 packet = group.set_light_level(output_light_vector)
                 gw.add_to_queue(Command(priority=2, owner=str(group), description=f'{event}, Set Light Level {output_light_vector}',
@@ -96,12 +98,13 @@ def add_a_sensor_query_to_queue():
 
 def set_light_level_from_sensor_callback(sensor: Sensor):
     """
-    This will add to all gateways outgoing queue a sensor read,
-    if there is no sensor it will add current group light profile.
+    This will send a group light control vector based on sensor read
     """
     for gw in sys.get_all_gateways():
         for group in gw.groups:
             if group.is_sensor(sensor.address):
+                if not group.is_scheduler_enabled():
+                    return
                 brightness = group.get_brightness_based_on_sensor()
                 event, output_light_vector, surface_micro_moles = group.get_current_output_vector(brightness=brightness)
                 packet = group.set_light_level(output_light_vector)
