@@ -48,25 +48,38 @@ print(t)
 print([norm(max_ilv, v, (b / 100)) for v in ilv])
 print(clac_PAR(t))
 
-rv = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
-bv = [100, 100, 100, 100, 100, 100, 100, 100]
-volt = [0.0, 36.8, 0.0, 0.0, 0.0, 36.7, 0.3, 36.8, 48.3, 3.3]
-max_current = [1400, 1400, 1400, 1400, 1400, 1400, 1400, 1400]
+data = [[1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000],
+        [100, 100, 100, 100, 100, 100, 100, 100],
+        [0.0, 36.8, 0.0, 0.0, 0.0, 36.7, 0.3, 36.8, 48.3, 3.3],
+        [1400, 1400, 1400, 1400, 1400, 1400, 1400, 1400]]
+input_data = pd.DataFrame(data, index=['RxLight', 'Blink', 'Voltage', 'MaxCurrent'])
+print(input_data)
 
 
-def calc_inc_freq_table(_freq_df: pd.DataFrame, _top_df: pd.DataFrame, _rv: List[int], _bv: List[int]) -> pd.DataFrame:
+def calc_inc_freq_table(_freq_df: pd.DataFrame, _top_df: pd.DataFrame, _data: pd.DataFrame) -> pd.DataFrame:
     a = []
     for rowIndex, row in _freq_df.iterrows():
         val = 0.0
         cI: int
         for cI, value in row.items():
-            x = _rv[cI] / 1000
+            x = _data.loc['RxLight', :][cI] / 1000
             y = _top_df[cI]
-            val += value * x * y[0] * (((1 - x) * y[1]) + 1) / y[2] * _bv[cI] / 100
+            val += value * x * y[0] * (((1 - x) * y[1]) + 1) / y[2] * _data.loc['Blink', :][cI] / 100
         a.append(val)
     _freq_df.insert(8, 8, a)
     return _freq_df
 
 
-t2 = calc_inc_freq_table(freq_df, top_df, rv, bv)
+t2 = calc_inc_freq_table(freq_df, top_df, input_data.copy())
 print(t2)
+
+
+def clac_fpc(_data: pd.DataFrame) -> float:
+    val = 0.0
+    _data = _data.iloc[:, :8]
+    for cI, items in _data.iteritems():
+        val += (items.Voltage * ((items.RxLight / 1000) * items.MaxCurrent / 1000)) * (items.Blink / 100)
+    return val * 1.04
+
+
+print(clac_fpc(input_data.copy()))
