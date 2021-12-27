@@ -1,6 +1,6 @@
 from math import isclose
 from typing import List, Any, Tuple
-
+import pandas as pd
 from fastapi_utils.api_model import APIModel
 
 from devices.schedule import Event
@@ -12,20 +12,25 @@ class MixerTable(APIModel):
     par: int = 0
     found_brightness: int = 100
     found_flag: bool = False
-    top_rows: List[List[float]] = []
-    freq_rows: List[List[float]] = []
-    solve_list: List[float] = []
+    top_rows: pd.DataFrame = None
+    freq_rows: pd.DataFrame = None
+    solve_list: pd.DataFrame = None
+    df: pd.DataFrame = None
+
+    class Config:
+        arbitrary_types_allowed = True
 
     def __init__(self, **data: Any):
         super().__init__(**data)
-        self.load_table()
+        self.df = self.load_table()
+        print(self.df)
 
-    def load_table(self):
-        import pandas as pd
-        read_file = pd.read_excel(self.path)[1:]
-        read_file.columns = [i for i in range(9)]
-        read_file = read_file.loc[:, 1:]
-        self.top_rows, self.freq_rows = read_file[:3].values.tolist(), read_file[3:].values.tolist()
+    def load_table(self) -> pd.DataFrame:
+        df = pd.read_excel(self.path)[1:]
+        df.columns = [i for i in range(9)]
+        df = df.loc[:, 1:]
+        self.top_rows, self.freq_rows = df[:3], df[3:]
+        return df
 
     def get_output_light_vector(self, input_light_vector: List[int], brightness: int) -> Tuple[list[int], float]:
         """calculate the vector,PAR as tuple if the brightness is zero, returns zeros.
