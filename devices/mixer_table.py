@@ -36,9 +36,8 @@ class MixerTable(APIModel):
         """calculate the vector,PAR as tuple if the brightness is zero, returns zeros.
          else values between 1-1000 are in order"""
         if input_light_vector == [0, 0, 0, 0, 0, 0, 0, 0]:
-            max_ilv = 0
-        else:
-            max_ilv = (100 / max(input_light_vector))
+            return input_light_vector, 0.0
+        max_ilv: int = 100 // max(input_light_vector)
         norm_b = (brightness / 100)
         t = self.calc_freq_table(self.freq_df, self.top_df, input_light_vector, max_ilv, norm_b)
         output_light_vector = [self.norm(max_ilv, v, norm_b) for v in input_light_vector]
