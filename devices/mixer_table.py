@@ -25,12 +25,13 @@ class MixerTable(APIModel):
         # print(self.df)
 
     def load_table(self):
-        df = pd.read_excel(self.path)[1:]
-        self.df = df.iloc[1:, 1:9]
+        self.df = pd.read_excel(self.path)
+        self.df = self.df.iloc[1:, 1:9]
         self.df.columns = [i for i in range(len(self.df.columns))]
         self.df.reset_index(drop=True, inplace=True)
-        self.top_df, self.freq_df = self.df[:3], df[3:]
+        self.top_df, self.freq_df = self.df[:3], self.df[3:]
         self.freq_df.reset_index(drop=True, inplace=True)
+        # print(self.freq_df, self.top_df)
 
     def get_output_light_vector(self, input_light_vector: List[int], brightness: int) -> Tuple[list[int], float]:
         """calculate the vector,PAR as tuple if the brightness is zero, returns zeros.
@@ -39,9 +40,9 @@ class MixerTable(APIModel):
             return input_light_vector, 0.0
         max_ilv: int = 100 // max(input_light_vector)
         norm_b = (brightness / 100)
-        t = self.calc_freq_table(self.freq_df, self.top_df, input_light_vector, max_ilv, norm_b)
+        t = self.calc_freq_table(self.freq_df.copy(), self.top_df, input_light_vector, max_ilv, norm_b)
         output_light_vector = [self.norm(max_ilv, v, norm_b) for v in input_light_vector]
-        return output_light_vector, self.clac_PAR(t)
+        return output_light_vector, self.calc_par(t)
 
     def calc_freq_table(self, _freq_df: pd.DataFrame, _top_df: pd.DataFrame, _ilv: List[int], max_ilv: int, _norm_b: float) -> pd.DataFrame:
         a = []
@@ -61,7 +62,7 @@ class MixerTable(APIModel):
         return ((_max_ilv * val) * 10) * _norm_b
 
     @staticmethod
-    def clac_PAR(_freq_df) -> float:
+    def calc_par(_freq_df) -> float:
         offset, row_count = 5, 59
         a = _freq_df.loc[offset: offset + row_count, 8]
         return sum(a)
@@ -103,10 +104,6 @@ class MixerTable(APIModel):
             self.binary_search(event, start_value, middle - 1, par_wanted)
 
     @staticmethod
-    def round_3_digit(value) -> float:
-        return round(value, 4)
-
-    @staticmethod
     def calc_solve_log(_freq_df: pd.DataFrame, _top_df: pd.DataFrame, _data: pd.DataFrame) -> pd.DataFrame:
         a = []
         for rowIndex, row in _freq_df.iterrows():
@@ -120,13 +117,13 @@ class MixerTable(APIModel):
         _freq_df.insert(8, 8, a)
         return _freq_df
 
-    def get_mixer_table_calcs(self, rx_values: List[int], blink_values: List[int], voltage_values: List[float], max_current_values: List[int]) -> pd.DataFrame:
-        input_data = pd.DataFrame([[rx_values, blink_values, voltage_values, max_current_values]], index=['RxLight', 'Blink', 'Voltage', 'MaxCurrent'])
-        t2 = self.calc_solve_log(self.freq_df, self.top_df, input_data)
-        return self.clac_params(t2, input_data)
+    def get_mixer_table_calc(self, rx_values: List[int], blink_values: List[int], voltage_values: List[float], max_current_values: List[int]) -> pd.DataFrame:
+        input_data = pd.DataFrame([rx_values, blink_values, voltage_values, max_current_values], index=['RxLight', 'Blink', 'Voltage', 'MaxCurrent'])
+        t2 = self.calc_solve_log(self.freq_df.copy(), self.top_df, input_data)
+        return self.calc_params(t2, input_data)
 
-    def clac_params(self, _freq_df: pd.DataFrame, _input_data: pd.DataFrame) -> pd.DataFrame:
-        FixturePowerConsumption = self.clac_fpc(_input_data)
+    def calc_params(self, _freq_df: pd.DataFrame, _input_data: pd.DataFrame) -> pd.DataFrame:
+        FixturePowerConsumption = self.calc_fpc(_input_data)
         TotalFixturePhotonFluxOutput = sum(_freq_df.loc[:, 8])
         FixturePAROutput = sum(_freq_df.loc[4:64, 8])
         if FixturePowerConsumption:
@@ -164,11 +161,11 @@ class MixerTable(APIModel):
             'RedToBlue': [RedToBlue],
             'RedToFarRed': [RedToFarRed],
             'RedAndFarRedToBlue': [RedAndFarRedToBlue],
-        }
+            }
         return pd.DataFrame(_d)
 
     @staticmethod
-    def clac_fpc(_data: pd.DataFrame) -> float:
+    def calc_fpc(_data: pd.DataFrame) -> float:
         val = 0.0
         _data = _data.iloc[:, :8]
         for cI, items in _data.items():

@@ -1,0 +1,83 @@
+version: '3.3'
+
+services:
+
+  #  frontend:
+  #    restart: always
+  #    ports:
+  #      - "80:80"
+  #    build:
+  #      context: ./frontend
+  #      dockerfile: Dockerfile
+  #    depends_on:
+  #      - db
+  #      - web
+
+#  web:
+#    restart: always
+#    build:
+#      context: ./backend
+#      dockerfile: Dockerfile
+#    #    env_file:
+#    #      - .env
+#    ports:
+#      - "8000:8000"
+#    command: bash -c 'while !</dev/tcp/db/5432; do sleep 1; done; uvicorn main:app --host 0.0.0.0 --port 8000 --workers 4'
+#    volumes:
+#      - ./app:/usr/app/app
+#      - /etc/timezone:/etc/timezone:ro
+#      - /etc/localtime:/etc/localtime:ro
+#    environment:
+#      - TZ=Asia/Jerusalem
+#      - DATABASE_URL=postgresql://fastapi_traefik:fastapi_traefik@db:5432/fastapi_traefik
+#      - SYSTEM_PATH=config/system_layout_config
+#    depends_on:
+#      - db
+
+  db:
+    restart: always
+    image: postgres:13-alpine
+    volumes:
+      - postgres_data:/var/lib/postgresql/data/
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "5432:5432"
+    environment:
+      - TZ=Asia/Jerusalem
+      - PGTZ=Asia/Jerusalem
+      - POSTGRES_USER=postgres
+      - POSTGRES_PASSWORD=postgres
+      - POSTGRES_DB=postgres
+
+  pgadmin:
+    restart: always
+    image: dpage/pgadmin4
+    networks:
+      - default
+    volumes:
+      - /etc/timezone:/etc/timezone:ro
+      - /etc/localtime:/etc/localtime:ro
+    ports:
+      - "5050:5050"
+    environment:
+      - PGADMIN_LISTEN_PORT=5050
+      - PGADMIN_DEFAULT_EMAIL=admin@amnorled.com
+      - PGADMIN_DEFAULT_PASSWORD=12qwaszx
+      - DATABASE_URL=postgresql+asyncpg://postgres:postgres@db:5432/postgres
+    depends_on:
+      - db
+
+  grafana:
+    restart: always
+    image: grafana/grafana
+    volumes:
+      - /etc/localtime:/etc/localtime:ro
+      - /etc/timezone:/etc/timezone:ro
+    ports:
+      - "3000:3000"
+    depends_on:
+      - db
+
+volumes:
+  postgres_data:

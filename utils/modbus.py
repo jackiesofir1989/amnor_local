@@ -47,7 +47,7 @@ def _calc_crc(raw_data: bytes) -> bytes:
 
 
 def amnor_modbus_r_w_registers(address, opcode: int, params: List[int], is_query: bool) -> bytes:
-    msg = struct.pack(f'>{len(params)}H', *params)
+    msg = struct.pack(f'>{len(params)}H', *[int(i) for i in params])
     if not is_query:
         msg = struct.pack(f'>HB', len(params), 2 * len(params)) + msg
         modbus_opcode = 0x10

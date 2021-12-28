@@ -175,19 +175,19 @@ class LampLogCreate(APIModel):
         if not group:
             return
         mixing_table: MixerTable = group.mixing_table
-        table_vals = mixing_table.get_mixer_table_calcs(self.light_rx, self.blink_rw, self.voltage, self.max_current)
-        self.power_consumption = table_vals.FixturePowerConsumption
-        self.total_photon_flux = table_vals.TotalFixturePhotonFluxOutput
-        self.par = table_vals.FixturePAROutput
-        self.photon_efficiency = table_vals.FixturePhotonEfficacy
-        self.avg_ppfd = table_vals.AvgPPFDFromOneMeter
-        self.blue_ratio = table_vals.BlueToPar
-        self.green_ratio = table_vals.GreenToPar
-        self.red_ratio = table_vals.RedToPar
-        self.far_red_ratio = table_vals.FarRedToPar
-        self.red_blue_ratio = table_vals.RedToBlue
-        self.red_far_red_ratio = table_vals.RedToFarRed
-        self.red_and_far_red_blue_ratio = table_vals.RedAndFarRedToBlue
+        table_vals = mixing_table.get_mixer_table_calc(self.light_rx, self.blink_rw, self.voltage, self.max_current)
+        self.power_consumption = float(table_vals.FixturePowerConsumption)
+        self.total_photon_flux = float(table_vals.TotalFixturePhotonFluxOutput)
+        self.par = float(table_vals.FixturePAROutput)
+        self.photon_efficiency = float(table_vals.FixturePhotonEfficacy)
+        self.avg_ppfd = float(table_vals.AvgPPFDFromOneMeter)
+        self.blue_ratio = float(table_vals.BlueToPar)
+        self.green_ratio = float(table_vals.GreenToPar)
+        self.red_ratio = float(table_vals.RedToPar)
+        self.far_red_ratio = float(table_vals.FarRedToPar)
+        self.red_blue_ratio = float(table_vals.RedToBlue)
+        self.red_far_red_ratio = float(table_vals.RedToFarRed)
+        self.red_and_far_red_blue_ratio = float(table_vals.RedAndFarRedToBlue)
         if group.sensor:
             self.sensor_ppfd = group.sensor.ppfd
         self.calculated_ppfd = group.calculated_ppfd

@@ -14,7 +14,7 @@ app.add_middleware(
     allow_credentials=True,
     allow_methods=["*"],
     allow_headers=["*"],
-)
+    )
 route_manager.add_routes(app)
 
 
@@ -22,9 +22,9 @@ route_manager.add_routes(app)
 async def startup_event():
     scheduler.start()
     add_all_jobs()
-    # async with engine.begin() as conn:
-    #     await conn.run_sync(Base.metadata.drop_all)
-    #     await conn.run_sync(Base.metadata.create_all)
+    async with engine.begin() as conn:
+        await conn.run_sync(Base.metadata.drop_all)
+        await conn.run_sync(Base.metadata.create_all)
 
 
 @app.on_event("shutdown")
@@ -34,6 +34,6 @@ async def shutdown_event():
 
 
 if __name__ == '__main__':
-    server = Server(Config("main:app", host='0.0.0.0', port=8000, reload=True, log_level=LOG_LEVEL, use_colors=True, ))
+    server = Server(Config("main:app", host='0.0.0.0', port=8000, log_level=LOG_LEVEL, use_colors=True))
     setup_logging()
     server.run()
