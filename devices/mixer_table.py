@@ -128,32 +128,48 @@ class MixerTable(APIModel):
 
     def clac_params(self, _freq_df: pd.DataFrame, _input_data: pd.DataFrame) -> pd.DataFrame:
         FixturePowerConsumption = self.clac_fpc(_input_data)
-        TotalFixturePhotonFluxOutput = sum(_freq_df.loc[:, 8])
-        FixturePAROutput = sum(_freq_df.loc[4:64, 8])
-        FixturePhotonEfficacy = TotalFixturePhotonFluxOutput / FixturePowerConsumption
-        AvgPPFDFromOneMeter = FixturePAROutput * 0.94
-        BlueToPar = sum(_freq_df.loc[4:24, 8]) / FixturePAROutput * 100
-        GreenToPar = sum(_freq_df.loc[25:43, 8]) / FixturePAROutput * 100
-        RedToPar = sum(_freq_df.loc[44:64, 8]) / FixturePAROutput * 100
-        FarRedToPar = sum(_freq_df.loc[65:80, 8]) / FixturePAROutput * 100
-        RedToBlue = RedToPar / BlueToPar
-        RedToFarRed = RedToPar / FarRedToPar
-        RedAndFarRedToBlue = (RedToPar + FarRedToPar) / BlueToPar
+        if FixturePowerConsumption:
+            TotalFixturePhotonFluxOutput = sum(_freq_df.loc[:, 8])
+            FixturePAROutput = sum(_freq_df.loc[4:64, 8])
+            FixturePhotonEfficacy = TotalFixturePhotonFluxOutput / FixturePowerConsumption
+            AvgPPFDFromOneMeter = FixturePAROutput * 0.94
+            BlueToPar = sum(_freq_df.loc[4:24, 8]) / FixturePAROutput * 100
+            GreenToPar = sum(_freq_df.loc[25:43, 8]) / FixturePAROutput * 100
+            RedToPar = sum(_freq_df.loc[44:64, 8]) / FixturePAROutput * 100
+            FarRedToPar = sum(_freq_df.loc[65:80, 8]) / FixturePAROutput * 100
+            RedToBlue = RedToPar / BlueToPar
+            RedToFarRed = RedToPar / FarRedToPar
+            RedAndFarRedToBlue = (RedToPar + FarRedToPar) / BlueToPar
 
-        _d = {
-            'FixturePowerConsumption': [FixturePowerConsumption],
-            'TotalFixturePhotonFluxOutput': [TotalFixturePhotonFluxOutput],
-            'FixturePAROutput': [FixturePAROutput],
-            'FixturePhotonEfficacy': [FixturePhotonEfficacy],
-            'AvgPPFDFromOneMeter': [AvgPPFDFromOneMeter],
-            'BlueToPar': [BlueToPar],
-            'GreenToPar': [GreenToPar],
-            'RedToPar': [RedToPar],
-            'FarRedToPar': [FarRedToPar],
-            'RedToBlue': [RedToBlue],
-            'RedToFarRed': [RedToFarRed],
-            'RedAndFarRedToBlue': [RedAndFarRedToBlue],
-        }
+            _d = {
+                'FixturePowerConsumption': [FixturePowerConsumption],
+                'TotalFixturePhotonFluxOutput': [TotalFixturePhotonFluxOutput],
+                'FixturePAROutput': [FixturePAROutput],
+                'FixturePhotonEfficacy': [FixturePhotonEfficacy],
+                'AvgPPFDFromOneMeter': [AvgPPFDFromOneMeter],
+                'BlueToPar': [BlueToPar],
+                'GreenToPar': [GreenToPar],
+                'RedToPar': [RedToPar],
+                'FarRedToPar': [FarRedToPar],
+                'RedToBlue': [RedToBlue],
+                'RedToFarRed': [RedToFarRed],
+                'RedAndFarRedToBlue': [RedAndFarRedToBlue],
+            }
+        else:
+            _d = {
+                'FixturePowerConsumption': [0],
+                'TotalFixturePhotonFluxOutput': [0],
+                'FixturePAROutput': [0],
+                'FixturePhotonEfficacy': [0],
+                'AvgPPFDFromOneMeter': [0],
+                'BlueToPar': [0],
+                'GreenToPar': [0],
+                'RedToPar': [0],
+                'FarRedToPar': [0],
+                'RedToBlue': [0],
+                'RedToFarRed': [0],
+                'RedAndFarRedToBlue': [0],
+            }
         return pd.DataFrame(_d)
 
     @staticmethod
