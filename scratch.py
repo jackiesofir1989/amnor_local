@@ -48,9 +48,9 @@ print(t)
 print([norm(max_ilv, v, (b / 100)) for v in ilv])
 print(clac_PAR(t))
 
-data = [[0, 0, 0, 0, 0, 0, 0, 0],
+data = [[1000, 0, 0, 0, 0, 0, 0, 0],
         [100, 100, 100, 100, 100, 100, 100, 100],
-        [0.0, 36.8, 0.0, 0.0, 0.0, 36.7, 0.3, 36.8, 48.3, 3.3],
+        [0, 36.8, 0.0, 0.0, 0.0, 36.7, 0.3, 36.8, 48.3, 3.3],
         [1400, 1400, 1400, 1400, 1400, 1400, 1400, 1400]]
 input_data = pd.DataFrame(data, index=['RxLight', 'Blink', 'Voltage', 'MaxCurrent'])
 print(input_data)
@@ -84,11 +84,14 @@ def clac_fpc(_data: pd.DataFrame) -> float:
 
 def clac_params(_freq_df: pd.DataFrame, _input_data: pd.DataFrame) -> pd.DataFrame:
     FixturePowerConsumption = clac_fpc(_input_data)
+    TotalFixturePhotonFluxOutput = sum(_freq_df.loc[:, 8])
+    FixturePAROutput = sum(_freq_df.loc[4:64, 8])
     if FixturePowerConsumption:
-        TotalFixturePhotonFluxOutput = sum(_freq_df.loc[:, 8])
-        FixturePAROutput = sum(_freq_df.loc[4:64, 8])
         FixturePhotonEfficacy = TotalFixturePhotonFluxOutput / FixturePowerConsumption
-        AvgPPFDFromOneMeter = FixturePAROutput * 0.94
+    else:
+        FixturePhotonEfficacy = 0
+    AvgPPFDFromOneMeter = FixturePAROutput * 0.94
+    if FixturePAROutput:
         BlueToPar = sum(_freq_df.loc[4:24, 8]) / FixturePAROutput * 100
         GreenToPar = sum(_freq_df.loc[25:43, 8]) / FixturePAROutput * 100
         RedToPar = sum(_freq_df.loc[44:64, 8]) / FixturePAROutput * 100
@@ -96,36 +99,29 @@ def clac_params(_freq_df: pd.DataFrame, _input_data: pd.DataFrame) -> pd.DataFra
         RedToBlue = RedToPar / BlueToPar
         RedToFarRed = RedToPar / FarRedToPar
         RedAndFarRedToBlue = (RedToPar + FarRedToPar) / BlueToPar
-
-        _d = {
-            'FixturePowerConsumption': [FixturePowerConsumption],
-            'TotalFixturePhotonFluxOutput': [TotalFixturePhotonFluxOutput],
-            'FixturePAROutput': [FixturePAROutput],
-            'FixturePhotonEfficacy': [FixturePhotonEfficacy],
-            'AvgPPFDFromOneMeter': [AvgPPFDFromOneMeter],
-            'BlueToPar': [BlueToPar],
-            'GreenToPar': [GreenToPar],
-            'RedToPar': [RedToPar],
-            'FarRedToPar': [FarRedToPar],
-            'RedToBlue': [RedToBlue],
-            'RedToFarRed': [RedToFarRed],
-            'RedAndFarRedToBlue': [RedAndFarRedToBlue],
-        }
     else:
-        _d = {
-            'FixturePowerConsumption': [0],
-            'TotalFixturePhotonFluxOutput': [0],
-            'FixturePAROutput': [0],
-            'FixturePhotonEfficacy': [0],
-            'AvgPPFDFromOneMeter': [0],
-            'BlueToPar': [0],
-            'GreenToPar': [0],
-            'RedToPar': [0],
-            'FarRedToPar': [0],
-            'RedToBlue': [0],
-            'RedToFarRed': [0],
-            'RedAndFarRedToBlue': [0],
-        }
+        BlueToPar = 0
+        GreenToPar = 0
+        RedToPar = 0
+        FarRedToPar = 0
+        RedToBlue = 0
+        RedToFarRed = 0
+        RedAndFarRedToBlue = 0
+
+    _d = {
+        'FixturePowerConsumption': [FixturePowerConsumption],
+        'TotalFixturePhotonFluxOutput': [TotalFixturePhotonFluxOutput],
+        'FixturePAROutput': [FixturePAROutput],
+        'FixturePhotonEfficacy': [FixturePhotonEfficacy],
+        'AvgPPFDFromOneMeter': [AvgPPFDFromOneMeter],
+        'BlueToPar': [BlueToPar],
+        'GreenToPar': [GreenToPar],
+        'RedToPar': [RedToPar],
+        'FarRedToPar': [FarRedToPar],
+        'RedToBlue': [RedToBlue],
+        'RedToFarRed': [RedToFarRed],
+        'RedAndFarRedToBlue': [RedAndFarRedToBlue],
+    }
     return pd.DataFrame(_d)
 
 
