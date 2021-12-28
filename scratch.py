@@ -1,4 +1,4 @@
-from typing import List, Hashable
+from typing import List
 
 import pandas as pd
 
@@ -77,9 +77,40 @@ print(t2)
 def clac_fpc(_data: pd.DataFrame) -> float:
     val = 0.0
     _data = _data.iloc[:, :8]
-    for cI, items in _data.iteritems():
+    for cI, items in _data.items():
         val += (items.Voltage * ((items.RxLight / 1000) * items.MaxCurrent / 1000)) * (items.Blink / 100)
     return val * 1.04
 
 
-print(clac_fpc(input_data.copy()))
+def clac_params(_freq_df: pd.DataFrame, _input_data: pd.DataFrame) -> pd.DataFrame:
+    FixturePowerConsumption = clac_fpc(_input_data)
+    TotalFixturePhotonFluxOutput = sum(_freq_df.loc[:, 8])
+    FixturePAROutput = sum(_freq_df.loc[4:64, 8])
+    FixturePhotonEfficacy = TotalFixturePhotonFluxOutput / FixturePowerConsumption
+    AvgPPFDFromOneMeter = FixturePAROutput * 0.94
+    BlueToPar = sum(_freq_df.loc[4:24, 8]) / FixturePAROutput * 100
+    GreenToPar = sum(_freq_df.loc[25:43, 8]) / FixturePAROutput * 100
+    RedToPar = sum(_freq_df.loc[44:64, 8]) / FixturePAROutput * 100
+    FarRedToPar = sum(_freq_df.loc[65:80, 8]) / FixturePAROutput * 100
+    RedToBlue = RedToPar / BlueToPar
+    RedToFarRed = RedToPar / FarRedToPar
+    RedAndFarRedToBlue = (RedToPar + FarRedToPar) / BlueToPar
+
+    _d = {
+        'FixturePowerConsumption': [FixturePowerConsumption],
+        'TotalFixturePhotonFluxOutput': [TotalFixturePhotonFluxOutput],
+        'FixturePAROutput': [FixturePAROutput],
+        'FixturePhotonEfficacy': [FixturePhotonEfficacy],
+        'AvgPPFDFromOneMeter': [AvgPPFDFromOneMeter],
+        'BlueToPar': [BlueToPar],
+        'GreenToPar': [GreenToPar],
+        'RedToPar': [RedToPar],
+        'FarRedToPar': [FarRedToPar],
+        'RedToBlue': [RedToBlue],
+        'RedToFarRed': [RedToFarRed],
+        'RedAndFarRedToBlue': [RedAndFarRedToBlue],
+    }
+    return pd.DataFrame(_d)
+
+
+print(clac_params(t2, input_data).to_string())

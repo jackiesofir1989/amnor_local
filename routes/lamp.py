@@ -175,22 +175,19 @@ class LampLogCreate(APIModel):
         if not group:
             return
         mixing_table: MixerTable = group.mixing_table
-        self.power_consumption = mixing_table.get_total_power_consumption(
-            self.light_rx, self.blink_rw, self.voltage, self.max_current)
-        self.total_photon_flux = mixing_table.get_total_photon_flux_output()
-        self.par = mixing_table.get_par()
-        self.photon_efficiency = \
-            mixing_table.get_photon_efficiency(self.power_consumption, self.total_photon_flux)
-        self.avg_ppfd = mixing_table.get_avg_ppfd_in_corons(self.par)
-        self.blue_ratio = self.round_3_digit(mixing_table.get_blue_ratio(self.par))
-        self.green_ratio = self.round_3_digit(mixing_table.get_green_ratio(self.par))
-        self.red_ratio = self.round_3_digit(mixing_table.get_red_ratio(self.par))
-        self.far_red_ratio = self.round_3_digit(mixing_table.get_far_red_ratio(self.par))
-        self.red_blue_ratio = self.round_3_digit(mixing_table.get_red_blue_ratio(self.red_ratio, self.blue_ratio))
-        self.red_far_red_ratio = \
-            self.round_3_digit(mixing_table.get_red_far_red_ratio(self.red_ratio, self.far_red_ratio))
-        self.red_and_far_red_blue_ratio = \
-            self.round_3_digit(mixing_table.get_red_far_red_to_blue_ratio(self.red_ratio, self.far_red_ratio, self.blue_ratio))
+        table_vals = mixing_table.get_mixer_table_calcs(self.light_rx, self.blink_rw, self.voltage, self.max_current)
+        self.power_consumption = table_vals.FixturePowerConsumption
+        self.total_photon_flux = table_vals.TotalFixturePhotonFluxOutput
+        self.par = table_vals.FixturePAROutput
+        self.photon_efficiency = table_vals.FixturePhotonEfficacy
+        self.avg_ppfd = table_vals.AvgPPFDFromOneMeter
+        self.blue_ratio = table_vals.BlueToPar
+        self.green_ratio = table_vals.GreenToPar
+        self.red_ratio = table_vals.RedToPar
+        self.far_red_ratio = table_vals.FarRedToPar
+        self.red_blue_ratio = table_vals.RedToBlue
+        self.red_far_red_ratio = table_vals.RedToFarRed
+        self.red_and_far_red_blue_ratio = table_vals.RedAndFarRedToBlue
         if group.sensor:
             self.sensor_ppfd = group.sensor.ppfd
         self.calculated_ppfd = group.calculated_ppfd
