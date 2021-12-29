@@ -2,20 +2,20 @@ from typing import List
 
 import pandas as pd
 
-df: pd.DataFrame = pd.read_excel('/home/jackie/PycharmProjects/app/MixerTableExcels/MixerTable.xlsx')
+df: pd.DataFrame = pd.read_excel('C:/Users/jacki/PycharmProjects/amnor_local/MixerTableExcels/MixerTable.xlsx')
 df = df.iloc[1:, 1:9]
 df.columns = [i for i in range(len(df.columns))]
 df.reset_index(drop=True, inplace=True)
 top_df, freq_df = df[:3], df[3:]
 freq_df.reset_index(drop=True, inplace=True)
 
-ilv = [1000, 1000, 1000, 1000, 1000, 1000, 1000, 1000]
+ilv = [0, 0, 0, 0, 0, 0, 0, 1000]
 if ilv == [0, 0, 0, 0, 0, 0, 0, 0]:
     max_ilv = 0
 else:
     max_ilv = (100 / max(ilv))
 
-b = 100
+b = 10
 norm_b = (b / 100)
 
 

@@ -1,3 +1,4 @@
+import logging
 from typing import List
 
 from devices.sensor import Sensor
@@ -107,6 +108,7 @@ def set_light_level_from_sensor_callback(sensor: Sensor):
                     return
                 brightness = group.get_brightness_based_on_sensor()
                 event, output_light_vector, surface_micro_moles = group.get_current_output_vector(brightness=brightness)
+                logging.critical(f'\n{gw} - {group} - {event}\nCalculated\nOutput Light Level: {output_light_vector}, Brightness calculated: {brightness}, Moles calculated: {surface_micro_moles}')
                 packet = group.set_light_level(output_light_vector)
                 gw.add_to_queue(Command(priority=2, owner=str(group), description=f'{event}, Set Light Level {output_light_vector}',
                                         data_bytes=packet))

@@ -1,3 +1,4 @@
+import logging
 from math import isclose
 from typing import List, Any, Tuple
 import pandas as pd
@@ -38,10 +39,13 @@ class MixerTable(APIModel):
          else values between 1-1000 are in order"""
         if input_light_vector == [0, 0, 0, 0, 0, 0, 0, 0]:
             return input_light_vector, 0.0
-        max_ilv: int = 100 // max(input_light_vector)
+        max_ilv: float = 100 / max(input_light_vector)
         norm_b = (brightness / 100)
+        # logging.critical(f'\n{input_light_vector}\n{brightness}\n')
         t = self.calc_freq_table(self.freq_df.copy(), self.top_df, input_light_vector, max_ilv, norm_b)
+        # logging.critical(f'\n{t}')
         output_light_vector = [self.norm(max_ilv, v, norm_b) for v in input_light_vector]
+        # logging.critical(f'\n{output_light_vector}\n{self.calc_par(t)}')
         return output_light_vector, self.calc_par(t)
 
     def calc_freq_table(self, _freq_df: pd.DataFrame, _top_df: pd.DataFrame, _ilv: List[int], max_ilv: int, _norm_b: float) -> pd.DataFrame:
@@ -82,7 +86,7 @@ class MixerTable(APIModel):
             return 100
         else:
             self.binary_search(event, 0, 100, par_wanted)
-        # print('BRIGHTNESS', event, sensor_light_moles, self.found_brightness, self.par)
+        logging.critical(f'{event}, Sensor PPFD: {sensor_light_moles}, Brightness: {self.found_brightness}, Par: {self.par}')
         return self.found_brightness
 
     def binary_search(self, event: Event, start_value: int, end_value: int, par_wanted: float):
@@ -136,9 +140,14 @@ class MixerTable(APIModel):
             GreenToPar = sum(_freq_df.loc[25:43, 8]) / FixturePAROutput * 100
             RedToPar = sum(_freq_df.loc[44:64, 8]) / FixturePAROutput * 100
             FarRedToPar = sum(_freq_df.loc[65:80, 8]) / FixturePAROutput * 100
-            RedToBlue = RedToPar / BlueToPar
-            RedToFarRed = RedToPar / FarRedToPar
-            RedAndFarRedToBlue = (RedToPar + FarRedToPar) / BlueToPar
+            if BlueToPar:
+                RedToBlue = RedToPar / BlueToPar
+                RedToFarRed = RedToPar / FarRedToPar
+                RedAndFarRedToBlue = (RedToPar + FarRedToPar) / BlueToPar
+            else:
+                RedToBlue = 0
+                RedToFarRed = 0
+                RedAndFarRedToBlue = 0
         else:
             BlueToPar = 0
             GreenToPar = 0
